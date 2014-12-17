@@ -287,9 +287,9 @@
 
             if (partialImageRef) {
                 UIImage *image = [UIImage imageWithCGImage:partialImageRef scale:1 orientation:orientation];
-                NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-                UIImage *scaledImage = [self scaledImageForKey:key image:image];
-                image = [UIImage decodedImageWithImage:scaledImage];
+//                NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+//                UIImage *scaledImage = [self scaledImageForKey:key image:image];
+                image = [UIImage decodedImageWithImage:image];
                 CGImageRelease(partialImageRef);
                 dispatch_main_sync_safe(^{
                     if (self.completedBlock) {
@@ -353,8 +353,8 @@
         }
         else {
             UIImage *image = [UIImage sd_imageWithData:self.imageData];
-            NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
-            image = [self scaledImageForKey:key image:image];
+//            NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];
+//            image = [self scaledImageForKey:key image:image];
             
             // Do not force decoding animated GIFs
             if (!image.images) {

@@ -11,6 +11,19 @@
 
 @implementation UIImage (GIF)
 
++ (CGSize)sd_imageSize:(CGImageRef)image
+{
+    // make a bitmap context of a suitable size to draw to, forcing decode
+    size_t width = CGImageGetWidth(image);
+    size_t orgheight = CGImageGetHeight(image);
+
+    CGFloat deviceWidth = CGRectGetWidth([UIScreen mainScreen].bounds);
+    CGFloat widthRatio = width / deviceWidth;
+    CGFloat height = floor(orgheight / widthRatio);
+
+    return CGSizeMake(deviceWidth, height);
+}
+
 + (UIImage *)sd_animatedGIFWithData:(NSData *)data {
     if (!data) {
         return nil;
@@ -32,10 +45,31 @@
 
         for (size_t i = 0; i < count; i++) {
             CGImageRef image = CGImageSourceCreateImageAtIndex(source, i, NULL);
+            
+            // make a bitmap context of a suitable size to draw to, forcing decode
+            CGSize size = [self sd_imageSize:image];
+            size_t width = (size_t)size.width;
+            size_t height = (size_t)size.height;
+            
+            CGColorSpaceRef colourSpace = CGColorSpaceCreateDeviceRGB();
+            CGContextRef imageContext =  CGBitmapContextCreate(NULL, width, height, 8, width*4, colourSpace,
+                                                               kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little);
+            CGColorSpaceRelease(colourSpace);
+            
+            // draw the image to the context, release it
+            CGContextDrawImage(imageContext, CGRectMake(0, 0, width, height), image);
+            
+            // now get an image ref from the context
+            CGImageRef outputImage = CGBitmapContextCreateImage(imageContext);
+            
+            UIImage *cachedImage = [UIImage imageWithCGImage:outputImage];
+            
+            // clean up
+            CGImageRelease(outputImage);
+            CGContextRelease(imageContext);
 
             duration += [self sd_frameDurationAtIndex:i source:source];
-
-            [images addObject:[UIImage imageWithCGImage:image scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp]];
+            [images addObject:cachedImage];
 
             CGImageRelease(image);
         }

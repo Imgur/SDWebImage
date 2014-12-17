@@ -12,6 +12,19 @@
 
 @implementation UIImage (ForceDecode)
 
++ (CGSize)sd_imageSize:(CGImageRef)image
+{
+    // make a bitmap context of a suitable size to draw to, forcing decode
+    size_t width = CGImageGetWidth(image);
+    size_t orgheight = CGImageGetHeight(image);
+    
+    CGFloat deviceWidth = CGRectGetWidth([UIScreen mainScreen].bounds);
+    CGFloat widthRatio = width / deviceWidth;
+    CGFloat height = floor(orgheight / widthRatio);
+    
+    return CGSizeMake(deviceWidth, height);
+}
+
 + (UIImage *)decodedImageWithImage:(UIImage *)image {
     if (image.images) {
         // Do not decode animated images
@@ -19,7 +32,7 @@
     }
 
     CGImageRef imageRef = image.CGImage;
-    CGSize imageSize = CGSizeMake(CGImageGetWidth(imageRef), CGImageGetHeight(imageRef));
+    CGSize imageSize = [self sd_imageSize:imageRef];
     CGRect imageRect = (CGRect){.origin = CGPointZero, .size = imageSize};
 
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
