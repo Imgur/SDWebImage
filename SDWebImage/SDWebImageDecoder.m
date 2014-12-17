@@ -9,14 +9,15 @@
  */
 
 #import "SDWebImageDecoder.h"
+#import "UIImage+GIF.h"
 
 @implementation UIImage (ForceDecode)
 
-+ (CGSize)sd_imageSize:(CGImageRef)image
+- (CGSize)sd_imageSize
 {
     // make a bitmap context of a suitable size to draw to, forcing decode
-    size_t width = CGImageGetWidth(image);
-    size_t orgheight = CGImageGetHeight(image);
+    size_t width = CGImageGetWidth([self.images.firstObject CGImage]);
+    size_t orgheight = CGImageGetHeight([self.images.firstObject CGImage]);
     
     CGFloat deviceWidth = CGRectGetWidth([UIScreen mainScreen].bounds);
     CGFloat widthRatio = width / deviceWidth;
@@ -28,11 +29,11 @@
 + (UIImage *)decodedImageWithImage:(UIImage *)image {
     if (image.images) {
         // Do not decode animated images
-        return image;
+        return [image sd_animatedImageByScalingAndCroppingToSize:[image sd_imageSize]];
     }
-
+    
     CGImageRef imageRef = image.CGImage;
-    CGSize imageSize = [self sd_imageSize:imageRef];
+    CGSize imageSize = CGSizeMake(CGImageGetWidth(imageRef), CGImageGetHeight(imageRef));
     CGRect imageRect = (CGRect){.origin = CGPointZero, .size = imageSize};
 
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();

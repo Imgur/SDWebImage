@@ -265,7 +265,7 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
     NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];
     if (data) {
         UIImage *image = [UIImage sd_imageWithData:data];
-//        image = [self scaledImageForKey:key image:image];
+        image = [self scaledImageForKey:key image:image];
         image = [UIImage decodedImageWithImage:image];
         return image;
     }
